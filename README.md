@@ -9,6 +9,7 @@ PREFIX=!
 DEBUG=false
 THUMBNAIL_URL=
 USE_EMBED=true
+REQUIRE_ADMIN=true
 ```
 
 ## Commands

@@ -1,8 +1,21 @@
 import dayjs from "dayjs";
-import { Collection, EmbedBuilder, GuildMember, Message } from "discord.js";
+import {
+  Collection,
+  EmbedBuilder,
+  GuildMember,
+  Message,
+  TextChannel,
+} from "discord.js";
 import { shuffleArray } from "../utils/shuffleArray";
 
 export const getUserList = async (msg: Message) => {
+  if (
+    process.env.REQUIRE_ADMIN === "true" &&
+    !msg.member?.permissionsIn(msg.channel as TextChannel).has("Administrator")
+  ) {
+    return msg.reply("Nie masz uprawnień do użycia tej komendy");
+  }
+
   const startTime = dayjs();
   let message = msg.content.slice(1);
   // Get guild members
@@ -59,7 +72,9 @@ export const getUserList = async (msg: Message) => {
   );
 
   const memberList = membersArray.map((member) => {
-    return `${member.user} ${member.user.tag}${member.nickname ? ` - ${member.nickname}` : ""}`;
+    return `${member.user} ${member.user.tag}${
+      member.nickname ? ` - ${member.nickname}` : ""
+    }`;
   });
 
   if (memberList.length) {

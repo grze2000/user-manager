@@ -1,10 +1,14 @@
-import { Client, EmbedBuilder, User } from "discord.js";
+import { ChannelType, Client, TextChannel, User } from "discord.js";
 import { showHelp } from "../commands/help";
 import { getUserList } from "../commands/users";
 
 export default (client: Client, prefix: string): void => {
   client.on("messageCreate", async (msg) => {
-    if (msg.author.id === client?.user?.id) return;
+    if (
+      msg.author.id === client?.user?.id ||
+      msg.channel.type !== ChannelType.GuildText
+    )
+      return;
 
     if (
       msg.mentions.has(client.user as User) &&

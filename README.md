@@ -8,9 +8,13 @@ TOKEN=
 PREFIX=!
 DEBUG=false
 THUMBNAIL_URL=
+USE_EMBED=true
 ```
 
 ## Commands
+Install packages:
+`pnpm i`
+
 Run in watch mode for development:
 `pnpm start:dev`
 

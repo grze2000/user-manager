@@ -63,8 +63,12 @@ export const getUserList = async (msg: Message) => {
   });
 
   if (memberList.length) {
-    let embed = new EmbedBuilder().setDescription(memberList.join("\n"));
-    msg.reply({ embeds: [embed] });
+    if (process.env.USE_EMBED === "true") {
+      let embed = new EmbedBuilder().setDescription(memberList.join("\n"));
+      msg.reply({ embeds: [embed] });
+    } else {
+      msg.reply({ content: memberList.join("\n") });
+    }
   } else {
     return msg.reply("Brak użytkowników spełniających podane kryteria");
   }

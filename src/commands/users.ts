@@ -7,6 +7,7 @@ import {
   TextChannel,
 } from "discord.js";
 import { shuffleArray } from "../utils/shuffleArray";
+import Guild from "../models/Guild";
 
 export const getUserList = async (msg: Message) => {
   if (
@@ -23,7 +24,7 @@ export const getUserList = async (msg: Message) => {
   if (process.env.DEBUG === "true") {
     console.log(
       `[${new Date().toLocaleString()}] Guild: ${
-        msg.member?.guild?.name
+        msg.guild?.name
       }. Fetched members: ${members.size}`
     );
   }
@@ -71,10 +72,20 @@ export const getUserList = async (msg: Message) => {
     limitRegex ? parseInt(limitRegex[1]) : 10
   );
 
+  // Find users in DB and get their last message date
+  const guildData = await Guild.findOne({ guildId: msg.guild?.id });
+
   const memberList = membersArray.map((member) => {
-    return `${member.user} ${member.user.tag}${
+    let userString = `${member.user} ${member.user.tag}${
       member.nickname ? ` - ${member.nickname}` : ""
     }`;
+    if(guildData) {
+      const user = guildData.users.find(user => user.userId === member.user.id);
+      if(user) {
+        userString += ` - Ostatnia wiadomość: ${dayjs(user.lastMessage).format("DD.MM.YYYY HH:mm")}`;
+      }
+    }
+    return userString;
   });
 
   if (memberList.length) {

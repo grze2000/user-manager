@@ -10,6 +10,8 @@ DEBUG=false
 THUMBNAIL_URL=
 USE_EMBED=true
 REQUIRE_ADMIN=true
+MONGO_URI=
+TESTER_ID=
 ```
 
 ## Commands

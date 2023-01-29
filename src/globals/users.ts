@@ -8,6 +8,7 @@ export interface User {
 export interface Guild {
   id: string;
   users: Collection<string, User>;
+  countdownChannels: string[];
 }
 
 export let guilds = new Collection<string, Guild>();
@@ -21,6 +22,7 @@ export const getUsersInGuild = (guildId: string): Collection<string, User> => {
     guilds.set(guildId, {
       id: guildId,
       users: new Collection<string, User>(),
+      countdownChannels: [],
     });
   }
   return guilds.get(guildId)!.users;

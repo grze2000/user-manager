@@ -26,11 +26,12 @@ export const handleDbConnection = () => {
           guilds.set(guild.guildId, {
             id: guild.guildId,
             users,
+            countdownChannels: guild.countdownChannels || []
           });
         });
       });
     })
     .catch((err) => {
-      console.log(`[${new Date().toLocaleString()}] Connected to MongoDB!`);
+      console.log(`[${new Date().toLocaleString()}] Failed to connect to MongoDB!`);
     });
 };

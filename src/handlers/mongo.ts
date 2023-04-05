@@ -1,4 +1,4 @@
-import { Collection } from 'discord.js';
+import { Collection } from "discord.js";
 import mongoose from "mongoose";
 import { guilds, User } from "../globals/users";
 import Guild from "../models/Guild";
@@ -26,12 +26,22 @@ export const handleDbConnection = () => {
           guilds.set(guild.guildId, {
             id: guild.guildId,
             users,
-            countdownChannels: guild.countdownChannels || []
+            countdownChannels: guild.countdownChannels || [],
+            killChatFeature: guild.killChatFeature || {
+              channelId: undefined,
+              activeFrom: undefined,
+              activeTo: undefined,
+              raectAfter: undefined,
+              lastMessageDate: undefined,
+              lastMessageUser: undefined,
+            },
           });
         });
       });
     })
     .catch((err) => {
-      console.log(`[${new Date().toLocaleString()}] Failed to connect to MongoDB!`);
+      console.log(
+        `[${new Date().toLocaleString()}] Failed to connect to MongoDB!`
+      );
     });
 };

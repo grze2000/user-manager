@@ -23,6 +23,14 @@ const GuildSchema = new Schema(
       },
     ],
     countdownChannels: [String],
+    killChatFeature: {
+      channelId: String,
+      activeFrom: Number,
+      activeTo: Number,
+      raectAfter: Number,
+      lastMessageDate: Date,
+      lastMessageUser: String,
+    }
   },
   {
     versionKey: false,

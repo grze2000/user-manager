@@ -8,9 +8,12 @@ import { getMessages } from "../commands/getMessages";
 import { showHelp } from "../commands/help";
 import { getUserList } from "../commands/users";
 import { noteUserLastMessage } from "../functions/noteUserLastMessage";
+import { setKillChatParameters } from "../commands/killChat/setKillChatParameters";
+import { noteKillChatChannelLastMessage } from "../functions/noteKillChatChannelLastMessage";
+import { disableKillChatFeature } from "../commands/killChat/disableKillChatFeature";
 
-export default (client: Client, prefix: string): void => {  
-  client.on("messageCreate", async (msg) => {    
+export default (client: Client, prefix: string): void => {
+  client.on("messageCreate", async (msg) => {
     if (
       msg.author.id === client?.user?.id ||
       msg.channel.type !== ChannelType.GuildText
@@ -20,7 +23,10 @@ export default (client: Client, prefix: string): void => {
     // Note user last message
     noteUserLastMessage(msg);
 
-    const guild = guilds.get(msg.guild!.id);    
+    // Note if message is in kill chat channel
+    noteKillChatChannelLastMessage(msg);
+
+    const guild = guilds.get(msg.guild!.id);
     if (guild && guild.countdownChannels.includes(msg.channel.id)) {
       validateCountdownMessage(msg);
     }
@@ -58,6 +64,10 @@ export default (client: Client, prefix: string): void => {
       removeCountdownChannel(msg);
     } else if (message.toLowerCase().startsWith("odliczanie")) {
       listCountdownChannel(msg);
+    } else if (message.toLowerCase() === "killchat disable") {
+      disableKillChatFeature(msg);
+    } else if (message.toLowerCase().startsWith("killchat")) {
+      setKillChatParameters(msg);
     }
   });
 };

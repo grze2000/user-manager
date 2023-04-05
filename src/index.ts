@@ -10,6 +10,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import onMessageCreate from "./listeners/onMessageCreate";
 import { handleDbConnection } from "./handlers/mongo";
 import { saveUsersToDbJob } from './cron/saveUsersToDb';
+import { catchChatKillersJob } from "./cron/catchChatKillers";
 dayjs.extend(customParseFormat);
 
 console.log("Connecting to MongoDB...");
@@ -33,5 +34,7 @@ ready(client);
 onMessageCreate(client, process.env.PREFIX ?? "!");
 
 saveUsersToDbJob();
+
+catchChatKillersJob(client);
 
 client.login(process.env.TOKEN);

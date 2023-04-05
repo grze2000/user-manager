@@ -7,11 +7,15 @@ import {
 import ready from "./listeners/ready";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import onMessageCreate from "./listeners/onMessageCreate";
 import { handleDbConnection } from "./handlers/mongo";
 import { saveUsersToDbJob } from './cron/saveUsersToDb';
 import { catchChatKillersJob } from "./cron/catchChatKillers";
 dayjs.extend(customParseFormat);
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 console.log("Connecting to MongoDB...");
 

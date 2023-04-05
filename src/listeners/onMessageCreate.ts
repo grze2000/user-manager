@@ -11,6 +11,8 @@ import { noteUserLastMessage } from "../functions/noteUserLastMessage";
 import { setKillChatParameters } from "../commands/killChat/setKillChatParameters";
 import { noteKillChatChannelLastMessage } from "../functions/noteKillChatChannelLastMessage";
 import { disableKillChatFeature } from "../commands/killChat/disableKillChatFeature";
+import { getMyChatKills } from "../commands/killChat/getMyChatKills";
+import { getCurrentChatKillsRanking } from "../commands/killChat/getCurrentChatKillsRanking";
 
 export default (client: Client, prefix: string): void => {
   client.on("messageCreate", async (msg) => {
@@ -53,21 +55,30 @@ export default (client: Client, prefix: string): void => {
     if (message.startsWith("users") || message.startsWith("userzy")) {
       getUserList(msg);
     } else if (
-      message.toLowerCase().startsWith("odliczanie dodaj") &&
+      (message.toLowerCase().startsWith("odliczanie dodaj") ||
+        message.toLowerCase().startsWith("countdown add")) &&
       msg.mentions.channels.size
     ) {
       addCountdownChannel(msg);
     } else if (
-      message.toLowerCase().startsWith("odliczanie usuń") &&
+      (message.toLowerCase().startsWith("odliczanie usuń") ||
+        message.toLowerCase().startsWith("countdown remove")) &&
       msg.mentions.channels.size
     ) {
       removeCountdownChannel(msg);
-    } else if (message.toLowerCase().startsWith("odliczanie")) {
+    } else if (
+      message.toLowerCase().startsWith("odliczanie") ||
+      message.toLowerCase().startsWith("countdown")
+    ) {
       listCountdownChannel(msg);
-    } else if (message.toLowerCase() === "killchat disable") {
+    } else if (message.toLowerCase() === "huntchatkillers disable") {
       disableKillChatFeature(msg);
-    } else if (message.toLowerCase().startsWith("killchat")) {
+    } else if (message.toLowerCase().startsWith("huntchatkillers")) {
       setKillChatParameters(msg);
+    } else if (message.toLowerCase() === "mychatkills") {
+      getMyChatKills(msg);
+    } else if (message.toLowerCase() === "chatkills") {
+      getCurrentChatKillsRanking(msg);
     }
   });
 };

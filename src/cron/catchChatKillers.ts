@@ -83,7 +83,7 @@ export const catchChatKillersJob = (client: Client) => {
             );
             if (!channel || channel.type !== ChannelType.GuildText) return;
             channel.send(
-              `Gratulacje, <@${guild.killChatFeature.lastMessageUser}>! Udało ci się zabić czat. Twoje punkty - ${points}`
+              `Gratulacje, <@${guild.killChatFeature.lastMessageUser}>! Udało ci się zabić czat. Twoje punkty: ${points}`
             );
           } catch (err) {
             console.log(err);

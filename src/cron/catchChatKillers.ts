@@ -15,7 +15,7 @@ export const catchChatKillersJob = (client: Client) => {
       //     dayjs().isSameOrAfter(
       //       dayjs().hour(guild.killChatFeature.activeFrom!)
       //     ),
-      //     dayjs().isSameOrBefore(dayjs().hour(guild.killChatFeature.activeTo!)),
+      //     dayjs().isBefore(dayjs().hour(guild.killChatFeature.activeTo!)),
       //     dayjs().diff(dayjs(guild.killChatFeature.lastMessageDate), "m") >
       //       (guild.killChatFeature.raectAfter ?? 20)
       //   );
@@ -27,7 +27,7 @@ export const catchChatKillersJob = (client: Client) => {
         dayjs().isSameOrAfter(
           dayjs().hour(guild.killChatFeature.activeFrom!)
         ) &&
-        dayjs().isSameOrBefore(dayjs().hour(guild.killChatFeature.activeTo!)) &&
+        dayjs().isBefore(dayjs().hour(guild.killChatFeature.activeTo!)) &&
         dayjs().diff(dayjs(guild.killChatFeature.lastMessageDate), "m") >
           (guild.killChatFeature.raectAfter ?? 20)
       ) {

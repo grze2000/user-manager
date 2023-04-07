@@ -13,6 +13,7 @@ import onMessageCreate from "./listeners/onMessageCreate";
 import { handleDbConnection } from "./handlers/mongo";
 import { saveUsersToDbJob } from './cron/saveUsersToDb';
 import { catchChatKillersJob } from "./cron/catchChatKillers";
+import { sendLastMonthChatKillerRanking } from "./cron/sendLastMonthChatKillerRanking";
 dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -40,5 +41,7 @@ onMessageCreate(client, process.env.PREFIX ?? "!");
 saveUsersToDbJob();
 
 catchChatKillersJob(client);
+
+sendLastMonthChatKillerRanking(client);
 
 client.login(process.env.TOKEN);

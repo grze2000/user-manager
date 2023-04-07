@@ -5,14 +5,23 @@ import dayjs from "dayjs";
 export const getCurrentChatKillsRanking = async (msg: Message) => {
   if (!msg.guild) return;
 
+  const groups = /chatkills ?(\d{4}.\d{2})?$/g.exec(msg.content);
+  const dateFromParams = groups?.[1] ? dayjs(`${groups[1]}.01`) : null;
+  const date =
+    dateFromParams && dateFromParams.isValid()
+      ? dateFromParams
+      : dayjs(`${dayjs().year()}-${dayjs().month() + 1}-01`);
+
   KillChatRanking.findOne({
     guildId: msg.guild.id,
-    date: dayjs(`${dayjs().year()}-${dayjs().month() + 1}-01`),
+    date: date,
   })
     .then((ranking) => {
       if (ranking) {
-        if(!ranking.users.length) {
-          msg.reply("Nie pojawił się jeszcze żaden zabójca czatu w tym miesiącu");
+        if (!ranking.users.length) {
+          msg.reply(
+            "Nie pojawił się jeszcze żaden zabójca czatu w tym miesiącu"
+          );
           return;
         }
         ranking.users.sort((a, b) => b.points! - a.points!);
@@ -30,7 +39,7 @@ export const getCurrentChatKillsRanking = async (msg: Message) => {
           .setDescription(message);
         msg.reply({ embeds: [embed] });
       } else {
-        msg.reply("Nie odnaleziono rankingu dla bieżącego miesiąca");
+        msg.reply("Nie odnaleziono rankingu");
       }
     })
     .catch((err) => {

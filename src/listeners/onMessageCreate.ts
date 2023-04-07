@@ -12,7 +12,7 @@ import { setKillChatParameters } from "../commands/killChat/setKillChatParameter
 import { noteKillChatChannelLastMessage } from "../functions/noteKillChatChannelLastMessage";
 import { disableKillChatFeature } from "../commands/killChat/disableKillChatFeature";
 import { getMyChatKills } from "../commands/killChat/getMyChatKills";
-import { getCurrentChatKillsRanking } from "../commands/killChat/getCurrentChatKillsRanking";
+import { getCurrentChatKillsRanking } from "../commands/killChat/getChatKillsRanking";
 
 export default (client: Client, prefix: string): void => {
   client.on("messageCreate", async (msg) => {
@@ -77,7 +77,7 @@ export default (client: Client, prefix: string): void => {
       setKillChatParameters(msg);
     } else if (message.toLowerCase() === "mychatkills") {
       getMyChatKills(msg);
-    } else if (message.toLowerCase() === "chatkills") {
+    } else if (message.toLowerCase().startsWith("chatkills")) {
       getCurrentChatKillsRanking(msg);
     }
   });

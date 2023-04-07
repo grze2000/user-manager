@@ -22,7 +22,7 @@ export const setKillChatParameters = async (msg: Message) => {
 
   const channelID = msg.mentions.channels.first()!.id;
 
-  const groups = /killchat <#\d+> (\d+) (\d+) (\d+)$/g.exec(msg.content);
+  const groups = /huntchatkillers <#\d+> (\d+) (\d+) (\d+)$/g.exec(msg.content);
   if (!groups) return msg.reply("Niepoprawne użycie komendy");
 
   if (

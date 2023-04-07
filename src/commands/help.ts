@@ -17,6 +17,7 @@ export const showHelp = async (msg: Message) => {
         **${process.env.PREFIX}huntchatkillers #nazwa-kanału <od godziny> <do godziny> <czas nieaktywności(min)>** - ustawia parametry łowów: kanał, czas działania oraz czas nieaktywności \n
         **${process.env.PREFIX}huntchatkillers disable** - wyłącza polowanie na zabójców czatu\n
         **${process.env.PREFIX}chatkills** - wyświetla ranking zabójców czatu dla bieżącego miesiąca\n
+        **${process.env.PREFIX}chatkills <RRRR.MM>** - wyświetla ranking zabójców czatu dla podanego miesiąca np. **chatkills 2023.01**\n
         **${process.env.PREFIX}mychatkills** - wyświetla liczbę punktów zdobytych przez użytkownika
         `
     )

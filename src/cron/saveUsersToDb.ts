@@ -1,16 +1,19 @@
-import cron from 'node-cron';
-import { guilds, state } from '../globals/users';
-import Guild from '../models/Guild';
+import cron from "node-cron";
+import { guilds, state } from "../globals/users";
+import Guild from "../models/Guild";
 
 export const saveUsersToDbJob = () => {
-  cron.schedule('*/30 * * * * *', () => {
-    if(!state.unsavedChanges) return;
+  cron.schedule("*/30 * * * * *", () => {
+    if (!state.unsavedChanges) return;
+
+    // console.log("Save to db");
 
     guilds.forEach((guild) => {
       Guild.findOne({ guildId: guild.id }).then((guildDoc) => {
         if (!guildDoc) {
           guildDoc = new Guild({
             guildId: guild.id,
+            guildName: guild.name,
             users: [],
           });
         }
@@ -18,11 +21,12 @@ export const saveUsersToDbJob = () => {
           return {
             userId: userId,
             username: user.username,
-            lastMessage: new Date(user.lastMessage),
+            lastMessage: user.lastMessage,
           };
         });
+        guildDoc.activityCheckToDate = guild.activityCheckToDate;
         guildDoc.save();
       });
     });
-  })
-}
+  });
+};

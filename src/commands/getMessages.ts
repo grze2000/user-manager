@@ -7,7 +7,7 @@ import {
   Message,
   TextChannel,
 } from "discord.js";
-import { getUsersInGuild, User } from "../globals/users";
+import { getUsersInGuild, guilds, state, User } from "../globals/users";
 
 const noteMessage = (
   message: Message,
@@ -18,14 +18,19 @@ const noteMessage = (
 
   if (
     !users.has(message.author.id) ||
-    !message.author.bot ||
+    !users.get(message.author.id)?.lastMessage?.date ||
     dayjs(message.createdAt).isAfter(
-      dayjs(users.get(message.author.id)?.lastMessage)
+      dayjs(users.get(message.author.id)?.lastMessage?.date)
     )
   ) {
     users.set(message.author.id, {
       username: message.author.tag,
-      lastMessage: dayjs(message.createdAt).toISOString(),
+      lastMessage: {
+        messageId: message.id,
+        channelId: message.channel.id,
+        content: message.content,
+        date: dayjs(message.createdAt).toDate(),
+      },
     });
   }
 };
@@ -33,7 +38,8 @@ const noteMessage = (
 const getMessagesInChannel = async (
   channel: TextChannel,
   guildMembers: Collection<string, GuildMember>,
-  users: Collection<string, User>
+  users: Collection<string, User>,
+  maxDate: dayjs.Dayjs
 ) => {
   if (channel.viewable) {
     const firstMessage = await channel.messages.fetch({ limit: 1 });
@@ -49,8 +55,20 @@ const getMessagesInChannel = async (
         before: messageCursor.id,
       });
 
+      let index = 1;
       for (const [key, message] of nextMessages) {
+        if (dayjs(message.createdAt).isBefore(maxDate)) {
+          console.log(
+            `[${new Date().toLocaleString()}] Stopped reading ${
+              channel.name
+            } at ${dayjs(message.createdAt).format(
+              "DD.MM.YYYY"
+            )} Messages count ${messageCount + index}`
+          );
+          return messageCount + index;
+        }
         noteMessage(message, users, guildMembers);
+        index++;
       }
       messageCount += nextMessages.size;
       messageCursor =
@@ -58,18 +76,33 @@ const getMessagesInChannel = async (
     }
     return messageCount;
   } else {
-    console.log(chalk.red("No permission to view channel:", channel.name));
+    console.log(
+      chalk.red(
+        `[${new Date().toLocaleString()}] No permission to view channel: ${
+          channel.name
+        }`
+      )
+    );
     return 0;
   }
 };
 
-export const getMessages = async (msg: Message) => {
+export const getMessages = async (msg: Message, date: string) => {
   if (!msg.guild) return;
 
   if (
-    !msg.member?.permissionsIn(msg.channel as TextChannel).has("Administrator") && msg.member?.user.id !== process.env.TESTER_ID
+    !msg.member
+      ?.permissionsIn(msg.channel as TextChannel)
+      .has("Administrator") &&
+    msg.member?.user.id !== process.env.TESTER_ID
   ) {
     return msg.reply("Nie masz uprawnień do użycia tej komendy");
+  }
+
+  const maxDate = dayjs(date);
+
+  if (!maxDate.isValid() || !maxDate.isBefore(dayjs())) {
+    return msg.reply("Podano nieprawidłową datę");
   }
 
   // Get global state array of users for this guild
@@ -81,7 +114,13 @@ export const getMessages = async (msg: Message) => {
     return channel && channel.type === ChannelType.GuildText;
   });
 
-  console.log("Started mapping messages");
+  const guild = guilds.get(msg.guild.id);
+  if (guild) {
+    guild.activityCheckToDate = new Date();
+    state.unsavedChanges = true;
+  }
+
+  console.log(`[${new Date().toLocaleString()}] Started mapping messages`);
   const startTime = dayjs();
   let totalCount = 0;
 
@@ -89,18 +128,35 @@ export const getMessages = async (msg: Message) => {
   const guildMembers =
     (await msg?.guild?.members?.fetch?.()) ?? new Collection();
 
+  guildMembers.forEach((member) => {
+    if (!users.has(member.id) && !member.user.bot) {
+      users.set(member.id, {
+        username: member.user.tag,
+        lastMessage: undefined,
+      });
+    } else {
+      const existingUser = users.get(member.id);
+      if (existingUser) {
+        existingUser.lastMessage = undefined;
+      }
+    }
+  });
+
   let progress = 0;
-  console.log("Analyzing messages in channels...");
+  console.log(
+    `[${new Date().toLocaleString()}] Analyzing messages in channels...`
+  );
   for (const [key, channel] of textChannels) {
     const messageCountInChannel = await getMessagesInChannel(
       channel as TextChannel,
       guildMembers,
-      users
+      users,
+      maxDate
     );
     totalCount += messageCountInChannel;
     progress++;
     console.log(
-      `${chalk.yellow(
+      `[${new Date().toLocaleString()}] ${chalk.yellow(
         Math.round((progress * 100) / textChannels.size),
         "%"
       )} - ${chalk.blue(messageCountInChannel)} messages in ${chalk.blue(
@@ -109,6 +165,7 @@ export const getMessages = async (msg: Message) => {
     );
   }
   console.log(
+    `[${new Date().toLocaleString()}] `,
     "Done in",
     dayjs().diff(startTime, "s"),
     "s! Total messages fetched:",

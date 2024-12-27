@@ -1,18 +1,18 @@
-import { validateCountdownMessage } from "./../functions/validateCountdownMessage";
-import { guilds } from "./../globals/users";
-import { listCountdownChannel } from "./../commands/listCountdownChannels";
-import { removeCountdownChannel } from "./../commands/removeCountdownChannel";
-import { addCountdownChannel } from "../commands/addCountdownChannel";
 import { ChannelType, Client, User } from "discord.js";
+import { addCountdownChannel } from "../commands/addCountdownChannel";
 import { getMessages } from "../commands/getMessages";
 import { showHelp } from "../commands/help";
-import { getUserList } from "../commands/users";
-import { noteUserLastMessage } from "../functions/noteUserLastMessage";
-import { setKillChatParameters } from "../commands/killChat/setKillChatParameters";
-import { noteKillChatChannelLastMessage } from "../functions/noteKillChatChannelLastMessage";
 import { disableKillChatFeature } from "../commands/killChat/disableKillChatFeature";
-import { getMyChatKills } from "../commands/killChat/getMyChatKills";
 import { getCurrentChatKillsRanking } from "../commands/killChat/getChatKillsRanking";
+import { getMyChatKills } from "../commands/killChat/getMyChatKills";
+import { setKillChatParameters } from "../commands/killChat/setKillChatParameters";
+import { getUserList } from "../commands/users";
+import { noteKillChatChannelLastMessage } from "../functions/noteKillChatChannelLastMessage";
+import { noteUserLastMessage } from "../functions/noteUserLastMessage";
+import { listCountdownChannel } from "./../commands/listCountdownChannels";
+import { removeCountdownChannel } from "./../commands/removeCountdownChannel";
+import { validateCountdownMessage } from "./../functions/validateCountdownMessage";
+import { guilds } from "./../globals/users";
 
 export default (client: Client, prefix: string): void => {
   client.on("messageCreate", async (msg) => {
@@ -41,11 +41,13 @@ export default (client: Client, prefix: string): void => {
       showHelp(msg);
     }
 
-    if (
-      msg.mentions.has(client.user as User) &&
-      msg.content.endsWith("analyse messages")
-    ) {
-      getMessages(msg);
+    if (msg.mentions.has(client.user as User)) {
+      const datePattern = /analyse messages (\d{4}-\d{2}-\d{2})$/;
+      const match = msg.content.match(datePattern);
+      if (match) {
+        const date = match[1]; // Extracted date in YYYY-DD-MM format
+        getMessages(msg, date);
+      }
     }
 
     // Ignore messages that don't start with the prefix

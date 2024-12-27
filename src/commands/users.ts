@@ -6,8 +6,8 @@ import {
   Message,
   TextChannel,
 } from "discord.js";
-import { shuffleArray } from "../utils/shuffleArray";
 import Guild from "../models/Guild";
+import { shuffleArray } from "../utils/shuffleArray";
 
 export const getUserList = async (msg: Message) => {
   if (
@@ -79,10 +79,18 @@ export const getUserList = async (msg: Message) => {
     let userString = `${member.user} ${member.user.tag}${
       member.nickname ? ` - ${member.nickname}` : ""
     }`;
-    if(guildData) {
-      const user = guildData.users.find(user => user.userId === member.user.id);
-      if(user) {
-        userString += ` - Ostatnia wiadomość: ${dayjs(user.lastMessage).format("DD.MM.YYYY HH:mm")}`;
+    if (guildData) {
+      const user = guildData.users.find(
+        (user) => user.userId === member.user.id
+      );
+      if (user) {
+        userString += ` - Ostatnia wiadomość: ${
+          user.lastMessage?.date
+            ? dayjs(user.lastMessage?.date).format("DD.MM.YYYY HH:mm")
+            : guildData.activityCheckToDate
+            ? `> ${dayjs().diff(dayjs(guildData.activityCheckToDate, "d"))}`
+            : "brak danych"
+        }, kanał: <#${user?.lastMessage?.channelId}>`;
       }
     }
     return userString;

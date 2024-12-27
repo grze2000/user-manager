@@ -6,6 +6,10 @@ const GuildSchema = new Schema(
       required: true,
       type: String,
     },
+    guildName: {
+      type: String,
+      required: true,
+    },
     users: [
       {
         userId: {
@@ -17,8 +21,14 @@ const GuildSchema = new Schema(
           type: String,
         },
         lastMessage: {
-          required: true,
-          type: Date,
+          required: false,
+          type: {
+            messageId: { type: String, required: true },
+            channelId: { type: String, required: true },
+            date: { type: Date, required: true },
+            content: { type: String, required: true },
+          },
+          default: null,
         },
       },
     ],
@@ -30,7 +40,11 @@ const GuildSchema = new Schema(
       raectAfter: Number,
       lastMessageDate: Date,
       lastMessageUser: String,
-    }
+    },
+    activityCheckToDate: {
+      type: Date,
+      required: false,
+    },
   },
   {
     versionKey: false,

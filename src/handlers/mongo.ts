@@ -19,12 +19,13 @@ export const handleDbConnection = () => {
           guild.users.forEach((user) => {
             users.set(user.userId, {
               username: user.username,
-              lastMessage: user.lastMessage.toISOString(),
+              lastMessage: user.lastMessage,
             });
           });
 
           guilds.set(guild.guildId, {
             id: guild.guildId,
+            name: guild.guildName,
             users,
             countdownChannels: guild.countdownChannels || [],
             killChatFeature: guild.killChatFeature || {
@@ -35,6 +36,7 @@ export const handleDbConnection = () => {
               lastMessageDate: undefined,
               lastMessageUser: undefined,
             },
+            activityCheckToDate: guild.activityCheckToDate,
           });
         });
       });

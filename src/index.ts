@@ -1,18 +1,16 @@
-import dotenv from "dotenv";
-dotenv.config();
-import {
-  Client,
-  GatewayIntentBits,
-} from "discord.js";
-import ready from "./listeners/ready";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
-import onMessageCreate from "./listeners/onMessageCreate";
-import { handleDbConnection } from "./handlers/mongo";
-import { saveUsersToDbJob } from './cron/saveUsersToDb';
+import { Client, GatewayIntentBits } from "discord.js";
+import dotenv from "dotenv";
 import { catchChatKillersJob } from "./cron/catchChatKillers";
+import { saveUsersToDbJob } from "./cron/saveUsersToDb";
 import { sendLastMonthChatKillerRanking } from "./cron/sendLastMonthChatKillerRanking";
+import { handleDbConnection } from "./handlers/mongo";
+import onGuildCreate from "./listeners/onGuildCreate";
+import onMessageCreate from "./listeners/onMessageCreate";
+import ready from "./listeners/ready";
+dotenv.config();
 dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrAfter);
 
@@ -35,6 +33,8 @@ const client = new Client({
 ready(client);
 
 onMessageCreate(client, process.env.PREFIX ?? "!");
+
+onGuildCreate(client);
 
 saveUsersToDbJob();
 

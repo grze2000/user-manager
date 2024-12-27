@@ -26,7 +26,7 @@ const GuildSchema = new Schema(
             messageId: { type: String, required: true },
             channelId: { type: String, required: true },
             date: { type: Date, required: true },
-            content: { type: String, required: true },
+            content: { type: String, required: false },
           },
           default: null,
         },

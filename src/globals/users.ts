@@ -6,7 +6,7 @@ export interface User {
     messageId: string;
     channelId: string;
     date: Date;
-    content: string;
+    content?: string;
   };
 }
 

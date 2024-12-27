@@ -20,11 +20,8 @@
         "sourceMap": false,
         "baseUrl": "./"
     },
-    "files": [
-        "src/index.ts"
-    ],
     "include": [
-        "./**/*.ts"
+        "src/**/*.ts"
     ],
     "exclude": [
         "node_modules",

@@ -1,20 +1,26 @@
 # User Manager
+
 Discord bot returning filtered list of users in a guild
 
 ## Environment variables
+
 Example .env file:
+
 ```
-TOKEN=
+TOKEN=""
+APPLICATION_ID=""
 PREFIX=!
 DEBUG=false
-THUMBNAIL_URL=
-USE_EMBED=true
+THUMBNAIL_URL=""
+USE_EMBED=false
 REQUIRE_ADMIN=true
-MONGO_URI=
-TESTER_ID=
+MONGO_URI=""
+TESTER_ID=""
+TEST_GUILD_ID=""
 ```
 
 ## Commands
+
 Install packages:
 `pnpm i`
 

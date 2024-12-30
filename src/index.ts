@@ -40,7 +40,10 @@ function loadCommands(folderPath: string) {
 
     if (file.isDirectory()) {
       loadCommands(filePath); // Jeśli to folder, wchodzimy głębiej
-    } else if (file.isFile() && file.name.endsWith(".ts")) {
+    } else if (
+      file.isFile() &&
+      (file.name.endsWith(".ts") || file.name.endsWith(".js"))
+    ) {
       const command = require(filePath).default;
 
       if ("data" in command && "execute" in command) {
@@ -69,7 +72,7 @@ loadCommands(commandsPath);
 const eventsPath = path.join(__dirname, "events");
 const eventFiles = fs
   .readdirSync(eventsPath)
-  .filter((file) => file.endsWith(".ts"));
+  .filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
 
 for (const file of eventFiles) {
   const event = require(path.join(eventsPath, file)).default;

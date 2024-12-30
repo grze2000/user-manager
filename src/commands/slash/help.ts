@@ -15,7 +15,7 @@ export default {
     const commandsPath = path.join(__dirname, "..", "slash");
     const commandFiles = fs
       .readdirSync(commandsPath)
-      .filter((file) => file.endsWith(".ts"));
+      .filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
 
     const commandsList = commandFiles.map((file) => {
       const command = require(path.join(commandsPath, file)).default;

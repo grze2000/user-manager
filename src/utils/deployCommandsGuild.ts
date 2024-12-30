@@ -17,7 +17,10 @@ function loadCommands(folderPath: string) {
 
     if (entry.isDirectory()) {
       loadCommands(filePath);
-    } else if (entry.isFile() && entry.name.endsWith(".ts")) {
+    } else if (
+      entry.isFile() &&
+      (entry.name.endsWith(".ts") || entry.name.endsWith(".js"))
+    ) {
       const command = require(filePath).default;
       if (command?.data) {
         commands.push(command.data.toJSON());

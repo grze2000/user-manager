@@ -6,6 +6,9 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 import { CustomClient } from "./client";
+import { catchChatKillersJob } from "./cron/catchChatKillers";
+import { saveUsersToDbJob } from "./cron/saveUsersToDb";
+import { sendLastMonthChatKillerRanking } from "./cron/sendLastMonthChatKillerRanking";
 import { handleDbConnection } from "./handlers/mongo";
 dotenv.config();
 dayjs.extend(customParseFormat);
@@ -17,19 +20,13 @@ handleDbConnection();
 
 console.log("Bot is starting...");
 
-// registerCommands(client);
-
-// onMessageCreate(client, process.env.PREFIX ?? "!");
-
-// onGuildCreate(client);
-
-// saveUsersToDbJob();
-
-// catchChatKillersJob(client);
-
-// sendLastMonthChatKillerRanking(client);
-
 const client = new CustomClient();
+
+saveUsersToDbJob();
+
+catchChatKillersJob(client);
+
+sendLastMonthChatKillerRanking(client);
 
 // Ładowanie komend
 const commandsPath = path.join(__dirname, "commands", "slash");
@@ -81,6 +78,9 @@ for (const file of eventFiles) {
   } else {
     client.on(event.name, (...args) => event.execute(...args, client));
   }
+  console.log(
+    chalk.blue(`[${new Date().toLocaleString()}] Created event: ${event.name}`)
+  );
 }
 
 client.login(process.env.TOKEN);

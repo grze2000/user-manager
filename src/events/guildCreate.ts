@@ -1,8 +1,9 @@
-import { Client, Collection } from "discord.js";
-import { guilds, state, User } from "./../globals/users";
+import { Collection, Events, Guild } from "discord.js";
+import { guilds, state, User } from "../globals/users";
 
-export default (client: Client): void => {
-  client.on("guildCreate", async (guild) => {
+export default {
+  name: Events.GuildCreate,
+  async execute(guild: Guild) {
     if (!guilds.has(guild.id)) {
       guilds.set(guild.id, {
         id: guild.id,
@@ -25,5 +26,5 @@ export default (client: Client): void => {
     console.info(
       `[${new Date().toLocaleString()}] Added to guild: ${guild.name}!`
     );
-  });
+  },
 };

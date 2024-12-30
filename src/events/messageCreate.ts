@@ -7,7 +7,6 @@ import { getMyChatKills } from "../commands/killChat/getMyChatKills";
 import { setKillChatParameters } from "../commands/killChat/setKillChatParameters";
 import { listCountdownChannel } from "../commands/listCountdownChannels";
 import { removeCountdownChannel } from "../commands/removeCountdownChannel";
-import { getUserList } from "../commands/users";
 import { noteKillChatChannelLastMessage } from "../functions/noteKillChatChannelLastMessage";
 import { noteUserLastMessage } from "../functions/noteUserLastMessage";
 import { validateCountdownMessage } from "../functions/validateCountdownMessage";
@@ -47,9 +46,7 @@ export default {
     if (!msg.content.startsWith(prefix)) return;
     const message = msg.content.slice(prefix.length).trim();
 
-    if (message.startsWith("users") || message.startsWith("userzy")) {
-      getUserList(msg);
-    } else if (
+    if (
       (message.toLowerCase().startsWith("odliczanie dodaj") ||
         message.toLowerCase().startsWith("countdown add")) &&
       msg.mentions.channels.size

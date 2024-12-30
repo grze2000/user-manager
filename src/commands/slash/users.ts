@@ -14,7 +14,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName("users")
     .setDescription(
-      "Wyświetla listę użytkowników serwera z informacją o ostatniej aktywności."
+      "Wyświetla listę użytkowników serwera z informacją o ostatniej aktywności"
     )
     .addIntegerOption((option) =>
       option
@@ -24,7 +24,7 @@ export default {
     .addStringOption((option) =>
       option
         .setName("sort")
-        .setDescription("Sortowanie (domyślnie/alfabetyczne)")
+        .setDescription("Sortowanie (domyślnie alfabetyczne)")
         .addChoices(
           { name: "Domyślne", value: "default" },
           { name: "Najdłużej nieaktywni", value: "inactive" }

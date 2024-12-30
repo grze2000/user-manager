@@ -6,8 +6,6 @@ export const saveUsersToDbJob = () => {
   cron.schedule("*/30 * * * * *", () => {
     if (!state.unsavedChanges) return;
 
-    // console.log("Save to db");
-
     guilds.forEach((guild) => {
       Guild.findOne({ guildId: guild.id }).then((guildDoc) => {
         if (!guildDoc) {

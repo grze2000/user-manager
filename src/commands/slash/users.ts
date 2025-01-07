@@ -47,15 +47,16 @@ export default {
       return;
     }
 
+    await interaction.deferReply({ ephemeral: true });
+
     // Pobranie członków serwera
     let members = (await interaction.guild.members.fetch()).filter(
       (member) => !member.user.bot
     );
 
     if (!members.size) {
-      await interaction.reply({
+      await interaction.editReply({
         content: "Brak członków do wyświetlenia.",
-        ephemeral: true,
       });
       return;
     }
@@ -82,17 +83,15 @@ export default {
               : joinedAt.isAfter(targetDate);
           });
         } else {
-          await interaction.reply({
+          await interaction.editReply({
             content: "Podano nieprawidłową datę w filtrze join_date.",
-            ephemeral: true,
           });
           return;
         }
       } else {
-        await interaction.reply({
+        await interaction.editReply({
           content:
             "Nieprawidłowy format join_date. Użyj np. 'before 2023-01-01' lub 'after 2022-12-31'.",
-          ephemeral: true,
         });
         return;
       }
@@ -180,10 +179,9 @@ export default {
         .setDisabled(currentPage === pages - 1)
     );
 
-    const message = await interaction.reply({
+    const message = await interaction.editReply({
       embeds: [generateEmbed(currentPage)],
       components: [buttons],
-      fetchReply: true,
     });
 
     const collector = message.createMessageComponentCollector({

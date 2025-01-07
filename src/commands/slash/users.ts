@@ -34,7 +34,7 @@ export default {
       option
         .setName("join_date")
         .setDescription(
-          `Filtruj według daty dołączenia np. "before 2023-01-31" lub "after 2022-12-31"`
+          `Data dołączenia np. "before 2023-01-31", "after 2022-12-31" lub "between 2022-12-31 and 2023-01-31"`
         )
     ),
 
@@ -47,7 +47,7 @@ export default {
       return;
     }
 
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: false });
 
     // Pobranie członków serwera
     let members = (await interaction.guild.members.fetch()).filter(
@@ -71,9 +71,30 @@ export default {
 
     // Filtrowanie według daty dołączenia
     if (joinDateFilter) {
-      const match = joinDateFilter.match(/(before|after)\s(\d{4}-\d{2}-\d{2})/);
-      if (match) {
-        const [, condition, date] = match;
+      const betweenMatch = joinDateFilter.match(
+        /between\s(\d{4}-\d{2}-\d{2})\sand\s(\d{4}-\d{2}-\d{2})/
+      );
+      const singleMatch = joinDateFilter.match(
+        /(before|after)\s(\d{4}-\d{2}-\d{2})/
+      );
+
+      if (betweenMatch) {
+        const [, startDate, endDate] = betweenMatch;
+        const start = dayjs(startDate);
+        const end = dayjs(endDate);
+        if (start.isValid() && end.isValid()) {
+          members = members.filter((member) => {
+            const joinedAt = dayjs(member.joinedAt);
+            return joinedAt.isAfter(start) && joinedAt.isBefore(end);
+          });
+        } else {
+          await interaction.editReply({
+            content: "Podano nieprawidłową datę w filtrze join_date.",
+          });
+          return;
+        }
+      } else if (singleMatch) {
+        const [, condition, date] = singleMatch;
         const targetDate = dayjs(date);
         if (targetDate.isValid()) {
           members = members.filter((member) => {
@@ -91,7 +112,7 @@ export default {
       } else {
         await interaction.editReply({
           content:
-            "Nieprawidłowy format join_date. Użyj np. 'before 2023-01-01' lub 'after 2022-12-31'.",
+            "Nieprawidłowy format join_date. Użyj np. 'before 2023-01-01', 'after 2022-12-31' lub 'between 2022-12-31 and 2023-01-31'.",
         });
         return;
       }
@@ -191,9 +212,8 @@ export default {
 
     collector.on("collect", async (buttonInteraction) => {
       if (buttonInteraction.user.id !== interaction.user.id) {
-        await buttonInteraction.reply({
+        await buttonInteraction.editReply({
           content: "Nie możesz kontrolować tej paginacji.",
-          ephemeral: true,
         });
         return;
       }
@@ -242,7 +262,15 @@ export default {
             .setDisabled(true)
         );
 
-      await message.edit({ components: [disabledButtons] });
+      try {
+        await message.edit({ components: [] });
+      } catch (error) {
+        console.error("Nie można edytować wiadomości: ", error);
+      }
+    });
+
+    collector.on("error", (error) => {
+      console.error("Błąd w kolektorze: ", error);
     });
   },
 };

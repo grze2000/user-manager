@@ -36,6 +36,13 @@ export default {
         .setDescription(
           `Data dołączenia np. "before 2023-01-31", "after 2022-12-31" lub "between 2022-12-31 and 2023-01-31"`
         )
+    )
+    .addStringOption((option) =>
+      option
+        .setName("last_message_date")
+        .setDescription(
+          `Data ostatniej wiadomości np. "before 2023-01-31", "between 2022-12-31 and 2023-01-31"`
+        )
     ),
 
   async execute(interaction: ChatInputCommandInteraction) {
@@ -68,6 +75,17 @@ export default {
     const sortOption = interaction.options.getString("sort") ?? "default";
     // @ts-ignore - TS doesn't know that the option exists
     const joinDateFilter = interaction.options.getString("join_date");
+    const lastMessageDateFilter = // @ts-ignore - TS doesn't know that the option exists
+      interaction.options.getString("last_message_date");
+
+    // Pobranie danych o gildii
+    const guildData = await Guild.findOne({ guildId: interaction.guild.id });
+    if (!guildData) {
+      await interaction.editReply({
+        content: "Brak danych o aktywności użytkowników w bazie.",
+      });
+      return;
+    }
 
     // Filtrowanie według daty dołączenia
     if (joinDateFilter) {
@@ -118,9 +136,85 @@ export default {
       }
     }
 
+    // Filtrowanie według daty ostatniej wiadomości
+    if (lastMessageDateFilter) {
+      const betweenMatch = lastMessageDateFilter.match(
+        /between\s(\d{4}-\d{2}-\d{2})\sand\s(\d{4}-\d{2}-\d{2})/
+      );
+      const singleMatch = lastMessageDateFilter.match(
+        /(before|after)\s(\d{4}-\d{2}-\d{2})/
+      );
+
+      if (betweenMatch) {
+        const [, startDate, endDate] = betweenMatch;
+        const start = dayjs(startDate);
+        const end = dayjs(endDate);
+        if (start.isValid() && end.isValid()) {
+          members = members.filter((member) => {
+            const user = guildData.users.find(
+              (user) => user.userId === member.user.id
+            );
+            if (user?.lastMessage?.date) {
+              const lastMessageDate = dayjs(user.lastMessage.date);
+              return (
+                lastMessageDate.isAfter(start) && lastMessageDate.isBefore(end)
+              );
+            } else {
+              return guildData.activityCheckToDate
+                ? start.isBefore(dayjs(guildData.activityCheckToDate))
+                : false;
+            }
+          });
+        } else {
+          await interaction.editReply({
+            content: "Podano nieprawidłową datę w filtrze last_message_date.",
+          });
+          return;
+        }
+      } else if (singleMatch) {
+        const [, condition, date] = singleMatch;
+        const targetDate = dayjs(date);
+        if (targetDate.isValid()) {
+          members = members.filter((member) => {
+            const user = guildData.users.find(
+              (user) => user.userId === member.user.id
+            );
+            if (user?.lastMessage?.date) {
+              const lastMessageDate = dayjs(user.lastMessage.date);
+              return condition === "before"
+                ? lastMessageDate.isBefore(targetDate)
+                : lastMessageDate.isAfter(targetDate);
+            } else {
+              return guildData.activityCheckToDate
+                ? condition === "before" ||
+                    targetDate.isBefore(dayjs(guildData.activityCheckToDate))
+                : false;
+            }
+          });
+        } else {
+          await interaction.editReply({
+            content: "Podano nieprawidłową datę w filtrze last_message_date.",
+          });
+          return;
+        }
+      } else {
+        await interaction.editReply({
+          content:
+            "Nieprawidłowy format last_message_date. Użyj np. 'before 2023-01-01', 'after 2022-12-31' lub 'between 2022-12-31 and 2023-01-31'.",
+        });
+        return;
+      }
+    }
+
+    if (!members.size) {
+      await interaction.editReply({
+        content: "Brak użytkowników spełniających podane kryteria.",
+      });
+      return;
+    }
+
     // Sortowanie
     if (sortOption === "inactive") {
-      const guildData = await Guild.findOne({ guildId: interaction.guild.id });
       if (guildData) {
         members = members.sort((a, b) => {
           const userA = guildData.users.find(
@@ -143,9 +237,6 @@ export default {
         a.user.username.localeCompare(b.user.username)
       );
     }
-
-    // Pobranie danych z bazy
-    const guildData = await Guild.findOne({ guildId: interaction.guild.id });
 
     // Paginate settings
     const pages = Math.ceil(members.size / pageSize);
@@ -172,7 +263,7 @@ export default {
                 ? `**${dayjs(user.lastMessage?.date).format(
                     "DD.MM.YYYY HH:mm"
                   )}**, kanał: <#${user.lastMessage.channelId}>`
-                : `**brak aktywności po ${dayjs(
+                : `**wcześniej niż ${dayjs(
                     guildData.activityCheckToDate
                   ).format("DD.MM.YYYY")}**`
             }`;
@@ -207,7 +298,7 @@ export default {
 
     const collector = message.createMessageComponentCollector({
       componentType: ComponentType.Button,
-      time: 60000,
+      time: 1000 * 60 * 20,
     });
 
     collector.on("collect", async (buttonInteraction) => {
